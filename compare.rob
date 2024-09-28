@@ -1,7 +1,13 @@
-Feature: Compare multiple XML tag values with references and apply delta threshold
+*** Settings ***
+Library    Process
 
-  Scenario: Compare multiple tag values between test and reference XML files
-    Given a reference XML file "reference_data.xml"
-    And a test XML file "test_data.xml"
-    When I extract the values for tags "a/b/c/d" and "a/b/c/e"
-    Then the test should pass if all deltas are within 2 standard deviations
+*** Variables ***
+${REFERENCE_FILE}    reference_data.xml
+${TEST_FILE}         test_data.xml
+${XPATH_TOLERANCES}  [("a/b/c/d", 0.01), ("a/b/c/e", 0.05)]
+
+*** Test Cases ***
+Compare XML Values With Tolerance
+    [Documentation]  Compare XML values using specified XPath values and tolerances.
+    ${output}=    Run Process    python    -c    from compare_xml import compare_xml_files_with_tolerance; result = compare_xml_files_with_tolerance('${REFERENCE_FILE}', '${TEST_FILE}', ${XPATH_TOLERANCES}); print(result)
+    Should Be True    ${output.stdout}
