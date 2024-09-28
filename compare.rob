@@ -1,13 +1,25 @@
 *** Settings ***
-Library    Process
+Resource    keywords.robot    # Load the keywords
+
+*** Variables ***
+${TEST_FILE}    test.xml
+
+*** Test Cases ***
+
+Test XML Comparison With Tolerance
+    [Documentation]  Test to compare the test XML file with the reference XML file.
+    Compare XML Files With Tolerance    ${TEST_
+
+*** Settings ***
+Library    lib/compare_xml.py    # Import the Python library
 
 *** Variables ***
 ${REFERENCE_FILE}    reference_data.xml
-${TEST_FILE}         test_data.xml
-${XPATH_TOLERANCES}  [("a/b/c/d", 0.01), ("a/b/c/e", 0.05)]
 
-*** Test Cases ***
-Compare XML Values With Tolerance
-    [Documentation]  Compare XML values using specified XPath values and tolerances.
-    ${output}=    Run Process    python    -c    from compare_xml import compare_xml_files_with_tolerance; result = compare_xml_files_with_tolerance('${REFERENCE_FILE}', '${TEST_FILE}', ${XPATH_TOLERANCES}); print(result)
-    Should Be True    ${output.stdout}
+*** Keywords ***
+
+Compare XML Files With Tolerance
+    [Arguments]    ${test_file}
+    ${xpaths_tolerance_list}=    Create List    ("a/b/c/d", 0.01)    ("a/b/c/e", 0.05)    # Add more pairs as needed
+    
+    Compare Xml Files With Tolerance    ${REFERENCE_FILE}    ${test_file}    @{xpaths_tolerance_list}
