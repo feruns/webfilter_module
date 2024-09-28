@@ -9,7 +9,6 @@ def extract_values_from_xml(xml_file, xpaths):
     
     values_dict = {}
     
-    # Iterate over each xpath and extract the corresponding values
     for xpath in xpaths:
         values = []
         for elem in root.findall(xpath):
@@ -45,12 +44,12 @@ def calculate_deltas(values_dict1, values_dict2):
 
 def compare_xml_files_with_tolerance(reference_file, test_file, xpaths_tolerance_list):
     """
-    Main function to compare two XML files based on xpaths and tolerances.
-    Returns True if all deltas are within tolerance, otherwise False.
+    Compare two XML files based on xpaths and tolerances.
+    Returns True if all deltas are within tolerance, otherwise raises an AssertionError.
     """
     xpaths = [xpath for xpath, _ in xpaths_tolerance_list]
     
-    # Extract values from both XML files
+    # Extract values from XML files
     reference_values_dict = extract_values_from_xml(reference_file, xpaths)
     test_values_dict = extract_values_from_xml(test_file, xpaths)
     
@@ -64,6 +63,6 @@ def compare_xml_files_with_tolerance(reference_file, test_file, xpaths_tolerance
         exceeding_deltas = [delta for delta in deltas if abs(delta) > tolerance]
         
         if exceeding_deltas:
-            print(f"XPath {xpath} has {len(exceeding_deltas)} deltas exceeding tolerance {tolerance}: {exceeding_deltas}")
-            return False
+            raise AssertionError(f"XPath {xpath} has {len(exceeding_deltas)} deltas exceeding tolerance {tolerance}: {exceeding_deltas}")
+    
     return True
