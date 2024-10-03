@@ -1,5 +1,6 @@
+second_list = [item for i in range(4) for item in original_list[i * len(original_list)//4 : (i * len(original_list)//4) + (len(original_list)//8)]]
 
-  import xml.etree.ElementTree as ET
+print(import xml.etree.ElementTree as ET
 
 def get_f_values_from_specific_c(xml_file, c_index):
     """
