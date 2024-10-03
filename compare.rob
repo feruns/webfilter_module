@@ -1,4 +1,34 @@
+import xml.etree.ElementTree as ET
 
+def get_f_values(xml_file, full_xpath_f):
+    """
+    Extract and return all 'f' values from the XML file based on the provided XPath.
+
+    Args:
+    - xml_file: Path to the XML file.
+    - full_xpath_f: Full XPath to 'f' elements (e.g., 'a/b/elt/c/elt/d/elt/e/elt/f').
+
+    Returns:
+    - A list of 'f' values as strings.
+    """
+    # Parse the XML file
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
+
+    # Extract all 'f' elements
+    f_elements = root.findall(full_xpath_f)
+    
+    # Return the text values of all 'f' elements as a list
+    f_values = [f_element.text for f_element in f_elements if f_element.text is not None]
+    
+    return f_values
+
+# Example usage:
+xml_file = 'file1.xml'
+full_xpath_f = './a/b/elt/c/elt/d/elt/e/elt/f'
+
+f_values = get_f_values(xml_file, full_xpath_f)
+print("F values:", f_values)
 import xml.etree.ElementTree as ET
 
 def get_specific_d_and_all_f(xml_tree, full_xpath, d_list_tag, d_index=0):
