@@ -1,129 +1,39 @@
-*** Settings ***
-Resource    keywords.robot    # Load the keywords
 
-*** Variables ***
-${TEST_FILE}    test.xml
+import xml.etree.ElementTree as ET
 
-*** Test Cases ***
-
-Test XML Comparison With Tolerance
-    [Documentation]  Test to compare the test XML file with the reference XML file.
-    Compare XML Files With Tolerance    ${TEST_
-
-*** Settings ***
-Library    lib/compare_xml.py    # Import the Python library
-
-*** Variables ***
-${REFERENCE_FILE}    reference_data.xml
-
-*** Keywords ***
-
-Compare XML Files With Tolerance
-    [Arguments]    ${test_file}
-    ${xpaths_tolerance_list}=    Create List    ("a/b/c/d", 0.01)    ("a/b/c/e", 0.05)    # Add more pairs as needed
+def get_first_elements_from_list(xml_tree, xpath, list_name):
+    """
+    Extract the first element of the list elements at a given XPath and return the merged values.
     
-    Compare Xml Files With Tolerance 
-
-
-${REFERENCE_FILE}    ${test_file}    @{xpaths_tolerance_import argparse
-from robot.api import logger
-
-def compare_xml_files_with_tolerance(reference_file, test_file, xpaths_tolerance_string):
-    """
-    Compare two XML files based on XPaths and tolerances.
-    The XPath-tolerance pairs are passed as a multi-line string with each pair on a new line.
-    """
-    # Convert the string into a dictionary
-    xpaths_tolerance_dict = parse_xpaths_tolerance_string(xpaths_tolerance_string)
-
-    # Extract values from the XML files using the XPaths
-    reference_values_dict = extract_values_from_xml(reference_file, list(xpaths_tolerance_dict.keys()))
-    test_values_dict = extract_values_from_xml(test_file, list(xpaths_tolerance_dict.keys()))
-
-    # Calculate deltas for all xpaths
-    deltas_dict = calculate_deltas(reference_values_dict, test_values_dict)
-
-    # Iterate over each XPath and its corresponding tolerance
-    for xpath, tolerance in xpaths_tolerance_dict.items():
-        deltas = deltas_dict.get(xpath, [])
-
-        # Find any deltas exceeding the tolerance
-        exceeding_deltas = [delta for delta in deltas if abs(delta) > tolerance]
-
-        if exceeding_deltas:
-            raise AssertionError(f"XPath '{xpath}' has {len(exceeding_deltas)} deltas exceeding tolerance {tolerance}: {exceeding_deltas}")
-
-    logger.info("XML comparison passed all tolerance checks", also_console=True)
-    return True
-
-
-def parse_xpaths_tolerance_string(xpaths_tolerance_string):
-    """
-    Convert the string of XPath-tolerance pairs into a dictionary.
-    Each line of the string should be in the format: 'XPath tolerance'
-    """
-    xpaths_tolerance_dict = {}
+    Args:
+    - xml_tree: Parsed ElementTree object.
+    - xpath: Full XPath to the elements containing the list (e.g., '/a/b/elt/c').
+    - list_name: Name of the list tag under the given XPath (e.g., 'd').
     
-    # Split the string into lines
-    lines = xpaths_tolerance_string.strip().splitlines()
-    
-    # Process each line
-    for line in lines:
-        parts = line.strip().split()  # Strip any extra spaces and split by whitespace
-        if len(parts) == 2:
-            xpath = parts[0].strip()  # Strip potential extra spaces
-            tolerance = float(parts[1].strip())
-            xpaths_tolerance_dict[xpath] = tolerance
-        else:
-            raise ValueError(f"Invalid format for line: '{line}'")
-
-    return xpaths_tolerance_dict
-
-
-def extract_values_from_xml(xml_file, xpaths):
+    Returns:
+    - Merged string of the first 'list_name' elements' text.
     """
-    A placeholder function for extracting values from the XML file.
-    This function needs to be implemented according to your specific XML structure.
-    """
-    # Implementation to extract values from XML using xpaths.
-    # For example, use lxml or xml.etree.ElementTree to parse the XML.
-    pass
-
-
-def calculate_deltas(reference_values_dict, test_values_dict):
-    """
-    A placeholder function to calculate deltas between reference and test XML values.
-    """
-    # Implementation to calculate the difference between reference and test XML values.
-    pass
-
-
-def main():
-    # Set up command line argument parser
-    parser = argparse.ArgumentParser(description="Compare two XML files based on XPaths and tolerance values.")
+    root = xml_tree.getroot()
     
-    # Required arguments: reference file, test file
-    parser.add_argument("reference_file", help="The reference XML file.")
-    parser.add_argument("test_file", help="The test XML file.")
+    # Find all elements that match the provided XPath
+    elements = root.findall(xpath)
     
-    # Optional argument for tag-tolerance pairs
-    parser.add_argument(
-        "--xpaths_tolerance",
-        help="A multi-line string where each line is 'XPath tolerance'. Example:\n'a/b/c/d 0.01\na/b/e/f 0.05'.",
-        required=True
-    )
+    first_values = []
     
-    # Parse the arguments
-    args = parser.parse_args()
+    for element in elements:
+        # Find the first child element with the tag matching the list_name (e.g., 'd')
+        first_element = element.find(list_name)
+        
+        if first_element is not None:
+            first_values.append(first_element.text)  # Collect the text of the first 'list_name' element
+    
+    # Merge the collected values into a single string and return
+    return ' '.join(filter(None, first_values))  # Filter out None values in case some elements were missing
 
-    # Call the comparison function with provided arguments
-    try:
-        compare_xml_files_with_tolerance(args.reference_file, args.test_file, args.xpaths_tolerance)
-        print("XML comparison completed successfully.")
-    except Exception as e:
-        print(f"XML comparison failed: {e}")
+# Example usage:
+tree1 = ET.parse('file1.xml')
+xpath = './a/b/elt/c'
+list_name = 'd'
 
-
-if __name__ == "__main__":
-    main()
-
+merged_values = get_first_elements_from_list(tree1, xpath, list_name)
+print(merged_values)
