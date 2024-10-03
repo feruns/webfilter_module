@@ -1,39 +1,50 @@
 
 import xml.etree.ElementTree as ET
 
-def get_first_elements_from_list(xml_tree, xpath, list_name):
+def get_specific_d_and_all_f(xml_tree, full_xpath, d_list_tag, d_index=0):
     """
-    Extract the first element of the list elements at a given XPath and return the merged values.
+    Extract a specific element from the d list by index and all f values from the provided full XPath.
     
     Args:
     - xml_tree: Parsed ElementTree object.
-    - xpath: Full XPath to the elements containing the list (e.g., '/a/b/elt/c').
-    - list_name: Name of the list tag under the given XPath (e.g., 'd').
+    - full_xpath: Full XPath to the elements containing the lists (e.g., 'a/b/c/elt/d/elt/e/elt/f').
+    - d_list_tag: Name of the 'd' list tag under the XPath (e.g., 'd').
+    - d_index: Index of the element in the 'd' list (default is 0 for the first element).
     
     Returns:
-    - Merged string of the first 'list_name' elements' text.
+    - A list where the first element is the specific 'd' values and the second element is all 'f' values.
     """
     root = xml_tree.getroot()
     
-    # Find all elements that match the provided XPath
-    elements = root.findall(xpath)
+    # Find all elements at the provided full XPath that ends at 'f'
+    elements = root.findall(full_xpath)
     
-    first_values = []
+    specific_d_values = []
+    all_f_values = []
     
     for element in elements:
-        # Find the first child element with the tag matching the list_name (e.g., 'd')
-        first_element = element.find(list_name)
+        # Navigate back to find the 'd' under the parent of the provided XPath
+        d_parent = element.find(f'../{d_list_tag}')  # Moving up from f to e, then up to d
         
-        if first_element is not None:
-            first_values.append(first_element.text)  # Collect the text of the first 'list_name' element
+        if d_parent is not None:
+            d_elements = d_parent.findall(d_list_tag)  # Get all 'd' elements as a list
+            
+            if d_elements and len(d_elements) > d_index:  # Check if the index is within bounds
+                specific_d_values.append(d_elements[d_index].text)  # Get the specific indexed element
+        
+        # Collect all 'f' values
+        all_f_values.append(element.text)
     
-    # Merge the collected values into a single string and return
-    return ' '.join(filter(None, first_values))  # Filter out None values in case some elements were missing
+    # Return as a list containing specific 'd' values and all 'f' values
+    return [specific_d_values, all_f_values]
 
 # Example usage:
 tree1 = ET.parse('file1.xml')
-xpath = './a/b/elt/c'
-list_name = 'd'
+full_xpath = './a/b/c/elt/d/elt/e/elt/f'
+d_list_tag = 'd'
+d_index = 1  # Specify the index you want (0 for first element, 1 for second, etc.)
 
-merged_values = get_first_elements_from_list(tree1, xpath, list_name)
-print(merged_values)
+result = get_specific_d_and_all_f(tree1, full_xpath, d_list_tag, d_index)
+
+print("Specific d values:", result[0])
+print("All f values:", result[1])
