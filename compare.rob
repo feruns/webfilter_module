@@ -1,21 +1,47 @@
 import xml.etree.ElementTree as ET
 
-def get_f_values(xml_file, full_xpath_f):
+def get_f_values_of_first_c(xml_file, full_xpath_c, full_xpath_f):
     """
-    Extract and return all 'f' values from the XML file based on the provided XPath.
+    Extract and return all 'f' values, but only for the first 'c' element.
 
     Args:
     - xml_file: Path to the XML file.
-    - full_xpath_f: Full XPath to 'f' elements (e.g., 'a/b/elt/c/elt/d/elt/e/elt/f').
+    - full_xpath_c: Full XPath to 'c' elements (e.g., 'a/b/elt/c').
+    - full_xpath_f: Full XPath relative to the 'c' element for 'f' elements (e.g., 'elt/d/elt/e/elt/f').
 
     Returns:
-    - A list of 'f' values as strings.
+    - A list of 'f' values for the first 'c' element as strings.
     """
     # Parse the XML file
     tree = ET.parse(xml_file)
     root = tree.getroot()
 
-    # Extract all 'f' elements
+    # Find the first 'c' element
+    first_c_element = root.find(full_xpath_c)
+    
+    if first_c_element is None:
+        return []  # Return empty list if no 'c' elements are found
+
+    # Find all 'f' elements under the first 'c' element
+    f_elements = first_c_element.findall(full_xpath_f)
+
+    # Return the text values of all 'f' elements as a list
+    f_values = [f_element.text for f_element in f_elements if f_element.text is not None]
+    
+    return f_values
+
+# Example usage:
+xml_file = 'file1.xml'
+full_xpath_c = './a/b/elt/c'         # Full XPath to 'c'
+full_xpath_f = './elt/d/elt/e/elt/f' # Relative XPath to 'f' under 'c'
+
+f_values = get_f_values_of_first_c(xml_file, full_xpath_c, full_xpath_f)
+print("F values of first C:", f_values)
+
+
+
+
+Extract all 'f' elements
     f_elements = root.findall(full_xpath_f)
     
     # Return the text values of all 'f' elements as a list
