@@ -1,17 +1,19 @@
 import xml.etree.ElementTree as ET
 
 def xml_to_dict(element):
-    # Create a dictionary for the current element
-    node_dict = {element.tag: []}
+    # Ensure the element's tag is in byte string format (str in Python 2)
+    tag = element.tag.encode('utf-8') if isinstance(element.tag, unicode) else element.tag
+    node_dict = {tag: []}
     
     # Process each child of the element
     for child in element:
-        # If the child has children, convert it to a dictionary
+        child_tag = child.tag.encode('utf-8') if isinstance(child.tag, unicode) else child.tag
         if len(child) > 0:
-            node_dict[element.tag].append(xml_to_dict(child))
+            node_dict[tag].append(xml_to_dict(child))
         else:
-            # If the child has no children, add its text content
-            node_dict[element.tag].append({child.tag: child.text})
+            # If the child has no children, encode its text content as needed
+            text = child.text.encode('utf-8') if isinstance(child.text, unicode) else child.text
+            node_dict[tag].append({child_tag: text})
     
     return node_dict
 
