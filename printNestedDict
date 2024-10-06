@@ -1,0 +1,52 @@
+def print_nested_dict(d, indent=0):
+    # Create indentation for pretty printing
+    spacing = ' ' * indent
+    for key, value in d.items():
+        # Print the current key
+        print(f"{spacing}{key}:")
+        
+        # If the value is a list, iterate through the list
+        if isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    print_nested_dict(item, indent + 4)  # Indent for nested dictionaries
+                else:
+                    print(f"{spacing}    {item}")  # Print simple items in the list
+        # If the value is a dictionary, print it recursively
+        elif isinstance(value, dict):
+            print_nested_dict(value, indent + 4)
+        else:
+            print(f"{spacing}    {value}")  # Print simple key-value pairs
+
+# Example nested dictionary
+nested_dict = {
+    'root': [
+        {
+            'a': [
+                {
+                    'b': [
+                        {'x': '1'},
+                        {'y': '2'},
+                        {'z': '3'}
+                    ]
+                },
+                {
+                    'b': [
+                        {'x': '4'},
+                        {'y': '5'},
+                        {'z': '6'}
+                    ]
+                }
+            ]
+        },
+        {
+            'c': [
+                {'d': '7'},
+                {'d': '8'}
+            ]
+        }
+    ]
+}
+
+# Call the function to print the nested dictionary
+print_nested_dict(nested_dict)
